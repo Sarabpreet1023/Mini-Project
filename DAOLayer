@@ -1,0 +1,127 @@
+// StudentDAO.java
+import java.util.List;
+public interface StudentDAO {
+    void saveStudent(Student student);
+    Student getStudentById(int id);
+    List<Student> getAllStudents();
+    void updateStudent(Student student);
+    void deleteStudent(int id);
+}
+// StudentDAOImpl.java
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import javax.transaction.Transactional;
+import java.util.List;
+
+@Repository
+public class StudentDAOImpl implements StudentDAO {
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    @Transactional
+    public void saveStudent(Student student) {
+        sessionFactory.getCurrentSession().saveOrUpdate(student);
+    }
+
+    @Transactional
+    public Student getStudentById(int id) {
+        return sessionFactory.getCurrentSession().get(Student.class, id);
+    }
+
+    @Transactional
+    public List<Student> getAllStudents() {
+        return sessionFactory.getCurrentSession()
+            .createQuery("from Student", Student.class).list();
+    }
+
+    @Transactional
+    public void updateStudent(Student student) {
+        sessionFactory.getCurrentSession().update(student);
+    }
+
+    @Transactional
+    public void deleteStudent(int id) {
+        Student student = getStudentById(id);
+        if(student != null) sessionFactory.getCurrentSession().delete(student);
+    }
+}
+// CourseDAO.java
+import java.util.List;
+public interface CourseDAO {
+    void saveCourse(Course course);
+    Course getCourseById(int id);
+    List<Course> getAllCourses();
+    void updateCourse(Course course);
+    void deleteCourse(int id);
+}
+// CourseDAOImpl.java
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import javax.transaction.Transactional;
+import java.util.List;
+
+@Repository
+public class CourseDAOImpl implements CourseDAO {
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    @Transactional
+    public void saveCourse(Course course) {
+        sessionFactory.getCurrentSession().saveOrUpdate(course);
+    }
+
+    @Transactional
+    public Course getCourseById(int id) {
+        return sessionFactory.getCurrentSession().get(Course.class, id);
+    }
+
+    @Transactional
+    public List<Course> getAllCourses() {
+        return sessionFactory.getCurrentSession()
+            .createQuery("from Course", Course.class).list();
+    }
+
+    @Transactional
+    public void updateCourse(Course course) {
+        sessionFactory.getCurrentSession().update(course);
+    }
+
+    @Transactional
+    public void deleteCourse(int id) {
+        Course course = getCourseById(id);
+        if(course != null) sessionFactory.getCurrentSession().delete(course);
+    }
+}
+// PaymentDAO.java
+import java.util.List;
+public interface PaymentDAO {
+    void savePayment(Payment payment);
+    List<Payment> getPaymentsByStudentId(int studentId);
+}
+// PaymentDAOImpl.java
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import javax.transaction.Transactional;
+import java.util.List;
+
+@Repository
+public class PaymentDAOImpl implements PaymentDAO {
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    @Transactional
+    public void savePayment(Payment payment) {
+        sessionFactory.getCurrentSession().saveOrUpdate(payment);
+    }
+
+    @Transactional
+    public List<Payment> getPaymentsByStudentId(int studentId) {
+        return sessionFactory.getCurrentSession()
+            .createQuery("from Payment where student.studentId = :studentId", Payment.class)
+            .setParameter("studentId", studentId)
+            .list();
+    }
+}
