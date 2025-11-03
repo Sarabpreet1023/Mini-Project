@@ -1,0 +1,67 @@
+// StudentService.java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class StudentService {
+    @Autowired
+    private StudentDAO studentDAO;
+
+    public void addStudent(Student student) { studentDAO.saveStudent(student); }
+    public Student getStudentById(int id) { return studentDAO.getStudentById(id); }
+    public List<Student> getAllStudents() { return studentDAO.getAllStudents(); }
+    public void updateStudent(Student student) { studentDAO.updateStudent(student); }
+    public void deleteStudent(int id) { studentDAO.deleteStudent(id); }
+}
+// CourseService.java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class CourseService {
+    @Autowired
+    private CourseDAO courseDAO;
+
+    public void addCourse(Course course) { courseDAO.saveCourse(course); }
+    public Course getCourseById(int id) { return courseDAO.getCourseById(id); }
+    public List<Course> getAllCourses() { return courseDAO.getAllCourses(); }
+    public void updateCourse(Course course) { courseDAO.updateCourse(course); }
+    public void deleteCourse(int id) { courseDAO.deleteCourse(id); }
+}
+// FeeService.java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class FeeService {
+    @Autowired
+    private StudentDAO studentDAO;
+    @Autowired
+    private PaymentDAO paymentDAO;
+
+    @Transactional
+    public void payFees(int studentId, double amount) {
+        Student student = studentDAO.getStudentById(studentId);
+        if (student == null) throw new RuntimeException("Student not found");
+        if (student.getBalance() < amount) throw new RuntimeException("Insufficient balance");
+        student.setBalance(student.getBalance() - amount);
+        studentDAO.updateStudent(student);
+        Payment payment = new Payment();
+        payment.setAmount(amount);
+        payment.setStudent(student);
+        payment.setDate(new java.util.Date());
+        paymentDAO.savePayment(payment);
+    }
+
+    @Transactional
+    public void refundFees(int studentId, double amount) {
+        Student student = studentDAO.getStudentById(studentId);
+        if (student == null) throw new RuntimeException("Student not found");
+        student.setBalance(student.getBalance() + amount);
+        studentDAO.updateStudent(student);
+        // You may also log refund operation in Payment table if needed
+    }
+}
